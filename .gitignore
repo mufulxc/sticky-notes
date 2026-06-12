@@ -13,6 +13,9 @@ publish/
 .vs/
 .idea/
 
+# Secrets
+supabase.json
+
 # OS
 Thumbs.db
 Desktop.ini

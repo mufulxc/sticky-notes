@@ -9,6 +9,7 @@ namespace StickyNotes.ViewModels;
 public partial class MainViewModel : ObservableObject
 {
     private readonly IStorageService _storage;
+    private readonly ISupabaseService _cloud;
 
     // ─── 文件夹 ──────────────────────────────
 
@@ -54,9 +55,10 @@ public partial class MainViewModel : ObservableObject
     public event Action? VisibilityChanged;
     public event Action? FolderChanged;
 
-    public MainViewModel(IStorageService storage)
+    public MainViewModel(IStorageService storage, ISupabaseService cloud)
     {
         _storage = storage;
+        _cloud = cloud;
         InitDefaultFolders();
         LoadFromDisk();
     }
@@ -226,6 +228,11 @@ public partial class MainViewModel : ObservableObject
             {
                 slot.Note.UpdatedAt = DateTime.Now;
                 _storage.SaveContent(slot.Note, slot.Text);
+
+                // 后台异步上传到 Supabase（不阻塞，失败不影响本地）
+                var note = slot.Note;
+                var text = slot.Text;
+                _ = Task.Run(() => _cloud.UploadAsync(note, text));
             }
         }
         EnsureNotes();

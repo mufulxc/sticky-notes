@@ -1,0 +1,5 @@
+{
+  "Url": "https://your-project.supabase.co",
+  "AnonKey": "sb_publishable_xxx",
+  "ServiceKey": "sb_secret_xxx"
+}

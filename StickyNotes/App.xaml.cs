@@ -17,6 +17,7 @@ public partial class App : System.Windows.Application
         services.AddSingleton<IStorageService, StorageService>();
         services.AddSingleton<IHotkeyService, HotkeyService>();
         services.AddSingleton<ITrayService, TrayService>();
+        services.AddSingleton<ISupabaseService, SupabaseService>();
 
         // 注册 ViewModel（单例，整个应用只有一个实例）
         services.AddSingleton<MainViewModel>();
