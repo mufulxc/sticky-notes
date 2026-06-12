@@ -90,6 +90,8 @@ public partial class MainViewModel : ObservableObject
         Notes = new ObservableCollection<NoteItem>();
         EnsureNotes();
         RefreshPanels();
+        PersistFolders();
+        FolderChanged?.Invoke();
     }
 
     public bool DeleteFolder(FolderInfo folder)
@@ -99,6 +101,7 @@ public partial class MainViewModel : ObservableObject
         all.RemoveAll(n => n.Folder == folder.Name);
         _storage.SaveNotes(all);
         Folders.Remove(folder);
+        PersistFolders();
 
         if (SelectedFolder == folder)
         {
@@ -123,6 +126,7 @@ public partial class MainViewModel : ObservableObject
         _storage.SaveNotes(all);
         foreach (var n in Notes) n.Folder = newName;
         SaveToDisk();
+        PersistFolders();
         return true;
     }
 
@@ -140,6 +144,7 @@ public partial class MainViewModel : ObservableObject
         Panels[index].IsVisible = !Panels[index].IsVisible;
         if (SelectedFolder is not null)
             SelectedFolder.PanelVisible[index] = Panels[index].IsVisible;
+        PersistFolders();
         VisibilityChanged?.Invoke();
     }
 
@@ -229,12 +234,22 @@ public partial class MainViewModel : ObservableObject
 
     private void InitDefaultFolders()
     {
-        Folders = new ObservableCollection<FolderInfo>
+        var saved = _storage.LoadFolders();
+        if (saved.Count > 0)
         {
-            new("文件夹1"), new("文件夹2"), new("文件夹3")
-        };
+            Folders = new ObservableCollection<FolderInfo>(saved);
+        }
+        else
+        {
+            Folders = new ObservableCollection<FolderInfo>
+            {
+                new("文件夹1"), new("文件夹2"), new("文件夹3")
+            };
+        }
         SelectedFolder = Folders[0];
     }
+
+    private void PersistFolders() => _storage.SaveFolders(Folders);
 
     private void LoadFromDisk()
     {

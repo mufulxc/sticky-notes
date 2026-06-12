@@ -74,6 +74,25 @@ public class StorageService : IStorageService
         return notes;
     }
 
+    private string FolderFile => Path.Combine(_dataFolder, "folders.json");
+
+    public List<FolderInfo> LoadFolders()
+    {
+        if (!File.Exists(FolderFile)) return [];
+        try
+        {
+            var json = File.ReadAllText(FolderFile);
+            return JsonSerializer.Deserialize<List<FolderInfo>>(json) ?? [];
+        }
+        catch { return []; }
+    }
+
+    public void SaveFolders(IEnumerable<FolderInfo> folders)
+    {
+        var json = JsonSerializer.Serialize(folders, JsonOpts);
+        File.WriteAllText(FolderFile, json);
+    }
+
     private const string SampleContent = """
 <p><strong>欢迎使用 随手贴 ✨</strong></p><p>这是一个<strong>富文本</strong>桌面便利贴应用。</p><p>你可以：</p><ul><li>使用顶部<strong>工具栏</strong>设置文字样式</li><li>改变<strong><span style="color: rgb(124, 92, 252);">字体颜色</span></strong>和<strong><span style="font-size: 24px;">字号</span></strong></li><li>插入分隔线</li><li>链接会自动识别 https://example.com</li></ul><hr/><p>开始记录你的想法吧！</p>
 """;
