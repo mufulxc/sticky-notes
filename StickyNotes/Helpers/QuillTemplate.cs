@@ -100,7 +100,7 @@ quill.clipboard.addMatcher(Node.TEXT_NODE, function(node, delta) {
 });
 
 // ═══ 内容变更 → C# ═══
-var timer = null;
+var timer = null, saveTimer = null;
 // 点击编辑器任意空白处 → 聚焦光标到末尾
 document.querySelector('.ql-editor').addEventListener('click', function(e) {
   if (!quill.getSelection()) {
@@ -109,12 +109,19 @@ document.querySelector('.ql-editor').addEventListener('click', function(e) {
 });
 quill.on('text-change', function() {
   clearTimeout(timer);
-  // 50ms 批处理：合并连续输入，防止切文件夹时内容丢失
+  clearTimeout(saveTimer);
+  // 50ms 批处理：合并连续输入，同步内存
   timer = setTimeout(function() {
     try { window.chrome.webview.postMessage({
       type: 'contentChanged',
       html: quill.root.innerHTML
     }); } catch(e) {}
+    // 2秒无新输入 → 自动写盘
+    saveTimer = setTimeout(function() {
+      try { window.chrome.webview.postMessage({
+        type: 'saveNow'
+      }); } catch(e) {}
+    }, 2000);
   }, 50);
 });
 
@@ -122,6 +129,7 @@ quill.on('text-change', function() {
 // setContent 只在切文件夹时被调用，此时用户不在输入，无需抑制
 function setContent(html) {
   clearTimeout(timer);
+  clearTimeout(saveTimer);
   quill.root.innerHTML = html || '';
 }
 function getContent() { return quill.root.innerHTML; }

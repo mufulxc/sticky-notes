@@ -142,6 +142,10 @@ public partial class MainWindow : Window
                         _vm.Panels[idx].Text = html;
                     });
                 }
+                else if (type == "saveNow")
+                {
+                    Dispatcher.Invoke(() => _vm.SaveCurrentNotes());
+                }
             }
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WebView2] {ex.Message}"); }
         };
