@@ -11,7 +11,7 @@ Windows 10/11 桌面富文本便签应用 — C# WPF + WebView2 + Quill.js
 | **系统托盘** | 最小化到托盘，双击/右键菜单恢复或退出 |
 | **多文件夹** | 支持新建、重命名、删除文件夹，数据按文件夹隔离 |
 | **三栏面板** | 左/中/右三块独立便签，可自由开关每块面板 |
-| **自动保存** | 输入 300ms 后自动保存，切文件夹/隐藏时强制保存 |
+| **自动保存** | 切文件夹 / 窗口隐藏 / Ctrl+S / 关闭时自动保存 |
 | **置顶窗口** | 始终在最前，无边框圆角（12px）设计 |
 
 ## 技术栈
@@ -98,10 +98,10 @@ WebView2 内容变化 → JavaScript postMessage → MainWindow 更新 PanelSlot
 ### 数据流
 
 ```
-用户输入 → Quill text-change (debounce 300ms)
-        → JS: window.chrome.webview.postMessage({type, html})
+用户输入 → Quill text-change (debounce 50ms 批处理)
+        → JS: chrome.webview.postMessage({type, html})  ← 直接传对象（非 JSON.stringify）
         → C#: WebMessageReceived → PanelSlot.Text = html
-        → 切文件夹/隐藏 → SaveContent(note, html) → .html 文件
+        → 切文件夹 / 隐藏 / Ctrl+S → SaveContent → .html 文件
 ```
 
 ## 数据存储
