@@ -1,0 +1,18 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.vs/
+
+# Build output
+publish/
+
+# IDE
+.vs/
+.idea/
+
+# OS
+Thumbs.db
+Desktop.ini
